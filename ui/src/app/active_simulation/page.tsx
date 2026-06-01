@@ -4,12 +4,26 @@ import { useRouter } from 'next/navigation';
 import ActiveSimulations from '@/components/ActiveSimulations';
 import MissionControl from '@/components/MissionControl';
 import TeamAI from '@/components/TeamAI';
+import { supabase } from '@/lib/supabase';
+
 export default function ActiveSimulation() {
   const router = useRouter();
   
   const [activeTab, setActiveTab] = useState("Active Simulations");
   const [showAlert, setShowAlert] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    // Check real auth session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        router.push('/');
+      } else {
+        setUserName(session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0] || 'Engineer');
+      }
+    });
+  }, [router]);
   
   const [metrics, setMetrics] = useState({ cpu: 89, memory: 42, connections: 1024 });
   const [logs, setLogs] = useState([
@@ -55,8 +69,8 @@ export default function ActiveSimulation() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleEnterSimulation = () => {
-    document.cookie = "codecraft_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
     router.push('/');
   };
 
@@ -90,7 +104,7 @@ export default function ActiveSimulation() {
         </div>
         
         <div className="px-gutter mt-auto pt-lg border-t border-white/5">
-          <button onClick={handleEnterSimulation} className="w-full py-sm px-md rounded bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-container font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+          <button onClick={handleSignOut} className="w-full py-sm px-md rounded bg-gradient-to-r from-primary-container to-secondary-container text-on-primary-container font-label-md text-label-md font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
             <span className="material-symbols-outlined">rocket_launch</span>
             Sign Out
           </button>

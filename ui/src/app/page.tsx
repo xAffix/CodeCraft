@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 export default function AccessTerminal() {
   const router = useRouter();
@@ -12,7 +13,12 @@ export default function AccessTerminal() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Simulated Telemetry feed
+    // Check if already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.push('/active_simulation');
+    });
+
+    // Live Telemetry feed
     const messages = [
       "Node 0x4A connected.",
       "Syncing atmospheric models...",
@@ -31,22 +37,27 @@ export default function AccessTerminal() {
       i++;
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [router]);
 
-  const simulateLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-    
-    setTimeout(() => {
-      if (developerId.includes("@") && accessToken.length >= 4) {
-        document.cookie = "codecraft_auth_token=valid_session; path=/; max-age=86400";
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: developerId,
+        password: accessToken,
+      });
+
+      if (authError) throw new Error(authError.message);
+      if (data.session) {
         router.push('/active_simulation');
-      } else {
-        setError("Invalid Developer ID or Access Token sequence.");
-        setIsLoading(false);
       }
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Authentication failed.");
+      setIsLoading(false);
+    }
   };
   return (
     <div className="flex w-full min-h-screen">{/*  Left Panel: Immersive Atmosphere (Hidden on Mobile)  */}
@@ -127,7 +138,7 @@ export default function AccessTerminal() {
 <h3 className="font-headline-lg-mobile text-headline-lg-mobile lg:font-headline-md lg:text-headline-md text-on-surface">Initiate Session</h3>
 <p className="font-body-md text-body-md text-outline mt-xs">Verify credentials to access the environment.</p>
 </div>
-<form className="flex flex-col gap-md" onSubmit={simulateLogin}>
+<form className="flex flex-col gap-md" onSubmit={handleLogin}>
 {error && (
   <div className="bg-error/10 border border-error/20 text-error font-label-sm px-sm py-xs rounded flex items-center gap-2">
     <span className="material-symbols-outlined text-[16px]">error</span>
