@@ -1,0 +1,85 @@
+EdTech Startup Concept: CodeCraft 🚀
+The Core Insight
+The gap isn't about what students know — it's about what they've never had to do under pressure, with real stakes, in a real environment. Most bootcamps and online courses still teach in isolation. CodeCraft simulates the actual workplace.
+
+What is CodeCraft?
+CodeCraft is an industry-simulation platform where students learn by doing — not by watching.
+Instead of video lectures and MCQs, students join a simulated tech company inside the platform. They get assigned a role (junior developer), a team, a manager (AI-driven), a codebase, deadlines, and real tickets to solve — just like a real job.
+
+The Product Suite
+1. 🏢 SimWork — The Flagship Product
+A browser-based workspace that mimics a real dev environment:
+
+Students receive a Jira-style ticket board with actual bugs to fix, features to build, and PRs to review
+They work inside an embedded VS Code-like IDE connected to a real GitHub repo
+An AI tech lead reviews their code, gives feedback, and assigns next tasks
+Weekly "sprint reviews" simulate standups and retrospectives
+
+Monetization: ₹999–₹1,999/month subscription for students
+
+2. 🎯 HireReady — B2B Corporate Assessment Tool
+Sold to companies:
+
+Companies define their actual tech stack and real problem types
+Candidates apply and get assessed through simulated on-the-job tasks (not LeetCode puzzles)
+Employers see a full work-sample portfolio, not just a score
+Replaces traditional coding rounds with a 3-day mini-internship simulation
+
+Monetization: ₹50,000–₹2,00,000/year SaaS license per company
+
+3. 🎓 CollegeBridge — B2B2C University Partnership
+Sold to engineering colleges:
+
+Replace dry lab sessions with CodeCraft's simulation curriculum
+Faculty dashboard to track student progress across real projects
+Students graduate with a verified SimWork portfolio alongside their degree
+Colleges get placement rate improvement — a direct incentive to buy
+
+Monetization: ₹5–₹15 lakh/year per institution
+
+The Go-To-Market Plan
+Phase 1 — Build & Validate (Months 1–6)
+
+Build the MVP: just the SimWork IDE + 5 curated project tracks (web dev, backend, data, DSA, DevOps)
+Onboard 500 beta students for free from Tier-2/3 engineering colleges in Maharashtra and Karnataka
+Collect outcome data: did they get hired? did their debugging skills improve?
+Partner with 2–3 startups willing to hire directly from the platform
+
+Phase 2 — Monetize Students (Months 7–12)
+
+Launch paid subscriptions after proving placement outcomes
+Introduce leaderboards, peer code reviews, and team-based projects
+Build a referral loop: placed students refer batchmates
+Target: 5,000 paying students at ₹1,200/month average = ₹60L MRR
+
+Phase 3 — Go B2B (Year 2)
+
+Launch HireReady for companies with the placement data as the sales pitch
+Approach HR heads at mid-size product companies (Razorpay, Zepto, Postman tier)
+Launch CollegeBridge with AICTE-alignment messaging to engineering colleges
+Target: 20 companies + 10 colleges = ₹3–4 Cr ARR
+
+
+What Makes This Defensible?
+FeatureCodeCraftTraditional EdTech (Coding Ninjas, GUVI)Learning formatSimulated workplaceVideo lecturesAssessmentReal work samplesMCQ / LeetCodeEmployer trustVerified work portfolioCertificateStudent motivationStakes + team + deadlinesSelf-paced, easy to quitRevenue modelB2C + B2B dual flywheelMostly B2C
+The data moat is the real defensibility — every student who completes a project generates verified skill data that companies pay to access. The more students, the more valuable the hiring pipeline becomes.
+
+The One-Line Pitch
+
+"CodeCraft turns final-year engineering students into job-ready developers by simulating their first job before they ever apply for one."
+
+
+Founder's Unfair Advantage to Build This
+The problem is real, measurable (Severity 9), and the market is massive — India alone produces 15 lakh engineering graduates per year. Even capturing 1% of that at ₹1,200/month is a ₹180 Cr/year market from students alone, before touching the B2B side.
+The insight that colleges won't be disrupted but can be partnered with is the key to distribution at scale without massive CAC.
+
+
+Why Monaco Editor over building your own IDE — it's the exact same engine as VS Code. Students get a professional-grade editor from day one, and you ship it in one sprint instead of six.
+
+Why Supabase over a custom backend — you get auth, database, file storage, and real-time subscriptions in one service. A two-person team shouldn't be managing servers in month one.
+
+Why Judge0 for code execution — building a secure code sandbox is a genuine engineering rabbit hole. Judge0 solves container isolation, timeout enforcement, and multi-language support out of the box. Outsource it and stay focused on the product.
+
+Why the content lead is the most underrated hire — the tickets are the product. A mediocre AI feedback engine on top of great, realistic tickets still works. A great AI engine on top of vague, unrealistic tickets fails every time. Hire someone who has actually worked in a dev team to write them.
+
+The single most important thing to do in Month 5 — get your first 10 real placements. Even one student who lands a job because of CodeCraft gives you a story that sells every B2B conversation with companies and colleges for the next year. That outcome data is worth more than any feature you could build.
