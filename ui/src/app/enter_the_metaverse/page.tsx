@@ -60,7 +60,7 @@ export default function EnterTheMetaverse() {
 {/*  Faction Selection Grid  */}
 <div className="grid grid-cols-1 md:grid-cols-3 gap-md lg:gap-gutter">
 {/*  Startup Track  */}
-<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden" onClick="selectFaction(this)">
+<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden" onClick={() => console.log('Faction selected')}>
 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
 <span className="material-symbols-outlined text-[120px] text-tertiary-fixed">rocket_launch</span>
 </div>
@@ -88,7 +88,7 @@ export default function EnterTheMetaverse() {
 </div>
 </button>
 {/*  Enterprise Track  */}
-<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden selected" onClick="selectFaction(this)">
+<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden selected" onClick={() => console.log('Faction selected')}>
 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
 <span className="material-symbols-outlined text-[120px] text-primary">domain</span>
 </div>
@@ -116,7 +116,7 @@ export default function EnterTheMetaverse() {
 </div>
 </button>
 {/*  OSS Track  */}
-<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden" onClick="selectFaction(this)">
+<button className="faction-card glass-panel rounded-xl p-md flex flex-col text-left group relative overflow-hidden" onClick={() => console.log('Faction selected')}>
 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
 <span className="material-symbols-outlined text-[120px] text-secondary">code_blocks</span>
 </div>

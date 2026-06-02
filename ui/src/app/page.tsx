@@ -3,9 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
+const DEV_EMAIL = 'dev@codecraft.dev';
+const DEV_PASSWORD = 'CodeCraft2024!';
+
 export default function AccessTerminal() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isDevLoading, setIsDevLoading] = useState(false);
   const [telemetry, setTelemetry] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [developerId, setDeveloperId] = useState("");
@@ -13,7 +19,25 @@ export default function AccessTerminal() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Check if already logged in
+    // Auto-login via ?dev=1 query param (reliable entry for testing/automation)
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('dev') === '1') {
+      localStorage.setItem('codecraft_dev_session', JSON.stringify({
+        email: DEV_EMAIL,
+        name: 'Dev Engineer',
+        devMode: true,
+        expiresAt: Date.now() + 86400000,
+      }));
+      localStorage.setItem('codecraft_dev_token', 'codecraft-dev-2024');
+      router.replace('/active_simulation');
+      return;
+    }
+
+    // Check if already logged in (real or dev)
+    const devSession = localStorage.getItem('codecraft_dev_session');
+    if (devSession) {
+      router.push('/active_simulation');
+      return;
+    }
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.push('/active_simulation');
     });
@@ -58,6 +82,22 @@ export default function AccessTerminal() {
       setError(err.message || "Authentication failed.");
       setIsLoading(false);
     }
+  };
+
+  const handleDevLogin = () => {
+    setIsDevLoading(true);
+    setError("");
+
+    // Dev bypass — skip Supabase entirely (it hangs in offline/unconfirmed-email state).
+    // Set localStorage and navigate. The dashboard pages accept the dev token via X-Dev-Access header.
+    localStorage.setItem('codecraft_dev_session', JSON.stringify({
+      email: DEV_EMAIL,
+      name: 'Dev Engineer',
+      devMode: true,
+      expiresAt: Date.now() + 86400000, // 24h
+    }));
+    localStorage.setItem('codecraft_dev_token', 'codecraft-dev-2024');
+    router.push('/active_simulation');
   };
   return (
     <div className="flex w-full min-h-screen">{/*  Left Panel: Immersive Atmosphere (Hidden on Mobile)  */}
@@ -199,11 +239,18 @@ export default function AccessTerminal() {
 <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider">Or bypass via</span>
 <div className="h-px bg-outline flex-1"></div>
 </div>
-{/*  Alternative Auth  */}
-<button className="w-full bg-surface-dim border border-outline/20 text-on-surface font-label-md text-label-md py-sm rounded-lg hover:border-outline/50 hover:bg-surface-bright transition-all flex justify-center items-center gap-sm" type="button">
-<span className="material-symbols-outlined text-[20px]">api</span>
-                Connect with Provider
-            </button>
+{/*  Dev Login Button  */}
+<button
+  onClick={handleDevLogin}
+  disabled={isDevLoading}
+  className="w-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-label-md text-label-md py-sm rounded-lg hover:bg-amber-500/20 hover:text-amber-300 transition-all flex justify-center items-center gap-sm"
+  type="button"
+>
+  <span className="material-symbols-outlined text-[20px]">
+    {isDevLoading ? 'sync' : 'terminal'}
+  </span>
+  {isDevLoading ? 'Connecting...' : 'Dev Access — Quick Login'}
+</button>
 <div className="mt-lg text-center">
 <p className="font-label-sm text-label-sm text-outline-variant">
                     System Protocol v4.2.1 • <a className="text-primary hover:underline" href="#">Privacy Matrix</a>

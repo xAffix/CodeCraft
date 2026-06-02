@@ -1,172 +1,143 @@
-const WebSocket = require('ws');
-const { verifyToken } = require('../middleware/auth');
-
 /**
- * Set up WebSocket server for real-time features:
- * - Sim-Slack messaging
- * - Terminal output streams
- * - Live telemetry / metrics
- * - Chaos Engine events
+ * CodeCraft WebSocket Server
+ *
+ * Handles real-time communication:
+ * - chat:send / chat:message — user-to-user and user-to-AI messaging
+ * - ai:message — AI persona sends a message
+ * - chaos:alert / chaos:resolved — chaos engine incidents
+ *
+ * The orchestrator is called when users send messages in
+ * simulation channels to generate AI persona responses.
  */
+
+const { WebSocketServer } = require('ws');
+const jwt = require('jsonwebtoken');
+const config = require('../config/env');
+const { generateResponse, Personas } = require('../ai/orchestrator');
+
 function setupWebSocket(server) {
-  const wss = new WebSocket.Server({
-    server,
-    path: '/ws',
-  });
+  const wss = new WebSocketServer({ server, path: '/ws' });
+  const clients = new Set();
 
-  // Track connected clients by user ID
-  const clients = new Map();
-
-  wss.on('connection', async (ws, req) => {
-    // Extract token from URL query params: ws://host/ws?token=xxx
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const token = url.searchParams.get('token');
-    let userId = null;
-
-    if (token) {
-      const user = await verifyToken(token);
-      if (user) {
-        userId = user.id;
-        // Register client
-        if (!clients.has(userId)) {
-          clients.set(userId, new Set());
-        }
-        clients.get(userId).add(ws);
-        console.log(`[WS] User ${userId} connected`);
+  function broadcast(event) {
+    const data = JSON.stringify(event);
+    for (const client of clients) {
+      if (client.readyState === 1) {
+        client.send(data);
       }
     }
+  }
 
-    // Send welcome message
-    ws.send(JSON.stringify({
-      type: 'connection',
-      status: userId ? 'authenticated' : 'anonymous',
-      userId,
-    }));
+  function authenticate(connectionParams) {
+    try {
+      // Try to find token in URL params or header
+      const urlParams = new URLSearchParams(connectionParams);
+      const token = urlParams.get('token');
+      if (!token) return null;
+      const decoded = jwt.verify(token, config.jwt.secret);
+      return decoded;
+    } catch {
+      return null;
+    }
+  }
 
-    // Handle incoming messages
+  function handleChatSend(ws, payload) {
+    const { channel, text, senderType = 'user', senderName = 'You' } = payload;
+
+    if (!channel || !text) return;
+
+    // Broadcast user message
+    const userMsgEvent = {
+      type: 'chat:message',
+      payload: {
+        channel,
+        text,
+        sender_type: senderType,
+        sender_name: senderName,
+        timestamp: new Date().toISOString(),
+      },
+    };
+    broadcast(userMsgEvent);
+
+    // Generate AI response(s) via orchestrator
+    // 70% chance an AI responds, 30% chance silence (like real life)
+    if (Math.random() < 0.7) {
+      const aiResult = generateResponse({
+        channel,
+        message: text,
+        senderType,
+        senderName,
+        channelMembers: ['kira', 'maya', 'ravi'],
+      });
+
+      const persona = Personas[aiResult.personaId];
+      const delay = 1000 + Math.floor(Math.random() * 2500); // 1-3.5s delay
+
+      setTimeout(() => {
+        const aiMsgEvent = {
+          type: 'ai:message',
+          payload: {
+            channel,
+            text: aiResult.text,
+            persona_id: persona.id,
+            persona_name: persona.name,
+            persona_role: persona.role,
+            sender_type: persona.senderType,
+            avatar: persona.avatar,
+            color: persona.color,
+            timestamp: new Date().toISOString(),
+          },
+        };
+        broadcast(aiMsgEvent);
+      }, delay);
+    }
+  }
+
+  wss.on('connection', (ws, req) => {
+    // Parse token from URL
+    const url = new URL(req.url, 'http://localhost');
+    const user = authenticate(url.searchParams.toString());
+
+    clients.add(ws);
+    console.log(`[WS] Client connected${user ? ` (user: ${user.sub || 'unknown'})` : ''}`);
+
+    // Send connection confirmation
+    ws.send(JSON.stringify({ type: 'connection:established', payload: { timestamp: new Date().toISOString() } }));
+
     ws.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw.toString());
 
         switch (msg.type) {
+          case 'chat:send':
+            handleChatSend(ws, msg.payload);
+            break;
+
           case 'ping':
             ws.send(JSON.stringify({ type: 'pong' }));
             break;
 
-          case 'chat:send':
-            handleChatMessage(ws, userId, msg, clients);
-            break;
-
-          case 'terminal:input':
-            handleTerminalInput(ws, userId, msg);
-            break;
-
           default:
-            ws.send(JSON.stringify({
-              type: 'error',
-              message: `Unknown message type: ${msg.type}`,
-            }));
+            console.log(`[WS] Unknown message type: ${msg.type}`);
         }
       } catch (err) {
-        ws.send(JSON.stringify({
-          type: 'error',
-          message: 'Invalid message format',
-        }));
+        console.error('[WS] Error handling message:', err.message);
       }
     });
 
-    // Handle disconnect
     ws.on('close', () => {
-      if (userId && clients.has(userId)) {
-        clients.get(userId).delete(ws);
-        if (clients.get(userId).size === 0) {
-          clients.delete(userId);
-        }
-      }
-      console.log(`[WS] User ${userId || 'anonymous'} disconnected`);
+      clients.delete(ws);
+      console.log('[WS] Client disconnected');
     });
 
-    // Handle errors
-    ws.on('error', (err) => {
-      console.error(`[WS] Error for user ${userId}:`, err.message);
+    ws.on('error', () => {
+      clients.delete(ws);
     });
   });
 
-  /**
-   * Broadcast a message to all clients of a specific user.
-   */
-  function sendToUser(targetUserId, message) {
-    if (clients.has(targetUserId)) {
-      const payload = JSON.stringify(message);
-      for (const client of clients.get(targetUserId)) {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(payload);
-        }
-      }
-    }
-  }
-
-  /**
-   * Broadcast to ALL connected clients (e.g., system-wide alerts).
-   */
-  function broadcast(message) {
-    const payload = JSON.stringify(message);
-    for (const [, userClients] of clients) {
-      for (const client of userClients) {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(payload);
-        }
-      }
-    }
-  }
-
-  /**
-   * Handle Sim-Slack chat messages.
-   */
-  async function handleChatMessage(ws, userId, msg, clients) {
-    const { channel, text } = msg.payload || {};
-
-    if (!channel || !text) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        message: 'Chat messages require channel and text',
-      }));
-      return;
-    }
-
-    // Broadcast to all clients in the same simulation
-    // (In production, scope this to simulation_id)
-    broadcast({
-      type: 'chat:message',
-      payload: {
-        channel,
-        user: userId,
-        text,
-        timestamp: new Date().toISOString(),
-      },
-    });
-  }
-
-  /**
-   * Handle terminal input forwarding.
-   */
-  function handleTerminalInput(ws, userId, msg) {
-    const { command, sessionId } = msg.payload || {};
-    console.log(`[WS] Terminal input from ${userId} on session ${sessionId}: ${command}`);
-
-    // In Phase 2, this will forward to the workspace container
-    ws.send(JSON.stringify({
-      type: 'terminal:output',
-      payload: {
-        sessionId,
-        output: `\r\n$ ${command}\r\n`,
-      },
-    }));
-  }
-
   console.log(`[WS] WebSocket server ready on /ws`);
 
-  return { wss, sendToUser, broadcast };
+  return { wss, broadcast, clients };
 }
 
 module.exports = { setupWebSocket };

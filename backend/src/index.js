@@ -10,7 +10,18 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const userRoutes = require('./routes/users');
+const workspaceRoutes = require('./routes/workspace');
+const messageRoutes = require('./routes/messages');
+const executeRoutes = require('./routes/execute');
+const aiRoutes = require('./routes/ai');
+const trustRoutes = require('./routes/trust');
+const skillsRoutes = require('./routes/skills');
+const portfolioRoutes = require('./routes/portfolio');
 const { setupWebSocket } = require('./websocket');
+const ChaosEngine = require('./ai/chaos');
+const TrustScoreEngine = require('./trust/engine');
+const SkillGraphEngine = require('./skills/engine');
+const PortfolioEngine = require('./portfolio/engine');
 
 const app = express();
 const server = http.createServer(app);
@@ -37,6 +48,13 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/workspace', workspaceRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/execute', executeRoutes);
+app.use('/api/ai', aiRoutes.router);
+app.use('/api/trust', trustRoutes.router);
+app.use('/api/skills', skillsRoutes.router);
+app.use('/api/portfolio', portfolioRoutes.router);
 
 // ─── Error Handling ───────────────────────────────────────
 
@@ -46,6 +64,32 @@ app.use(errorHandler);
 // ─── WebSocket ────────────────────────────────────────────
 
 const { broadcast } = setupWebSocket(server);
+
+// ─── Chaos Engine Init ────────────────────────────────────
+
+const chaosEngine = new ChaosEngine(broadcast);
+aiRoutes.setChaosEngine(chaosEngine);
+chaosEngine.start();
+
+// ─── Trust Score Engine Init ──────────────────────────────
+
+const trustEngine = new TrustScoreEngine();
+trustRoutes.setTrustEngine(trustEngine);
+
+// ─── Skill Graph Engine Init ──────────────────────────────
+
+const skillsEngine = new SkillGraphEngine();
+skillsRoutes.setSkillsEngine(skillsEngine);
+
+// ─── Portfolio Engine Init ────────────────────────────────
+
+const portfolioEngine = new PortfolioEngine();
+portfolioRoutes.setPortfolioEngine(portfolioEngine);
+
+// ─── Workspace Manager Init ───────────────────────────────
+
+const { init: initWorkspaceManager } = require('./workspace/manager');
+initWorkspaceManager();
 
 // ─── Start Server ─────────────────────────────────────────
 

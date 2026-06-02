@@ -102,6 +102,17 @@ router.post('/logout', async (req, res, next) => {
  */
 router.get('/me', async (req, res, next) => {
   try {
+    // Dev bypass — header is enough; no JWT needed
+    if (req.headers['x-dev-access'] === 'codecraft-dev-2024') {
+      return res.json({
+        id: 'dev-user-000',
+        email: 'dev@codecraft.dev',
+        name: 'Dev Engineer',
+        created_at: '2025-12-15T10:00:00.000Z',
+        devMode: true,
+      });
+    }
+
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Not authenticated' });

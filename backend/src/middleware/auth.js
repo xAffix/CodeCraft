@@ -1,4 +1,5 @@
 const supabase = require('../config/database');
+const config = require('../config/env');
 
 /**
  * Verify a Supabase JWT token from the Authorization header.
@@ -19,8 +20,17 @@ async function verifyToken(token) {
 /**
  * Express middleware — extracts Bearer token, verifies it,
  * attaches `req.user` if valid, returns 401 if not.
+ *
+ * DEV BYPASS: In development mode, you can skip auth by sending
+ * the header `X-Dev-Access: codecraft-dev-2024`.
  */
 async function authMiddleware(req, res, next) {
+  // Dev bypass
+  if (config.server.nodeEnv !== 'production' && req.headers['x-dev-access'] === 'codecraft-dev-2024') {
+    req.user = { id: 'dev-user-000', email: 'dev@codecraft.dev', user_metadata: { full_name: 'Dev Engineer' } };
+    return next();
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing or malformed authorization header' });

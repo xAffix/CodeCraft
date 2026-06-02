@@ -79,9 +79,19 @@ module.exports = {
               "headline-md": ["Geist", "sans-serif"],
               "headline-lg-mobile": ["Geist", "sans-serif"],
               "body-lg": ["Inter", "sans-serif"],
-              "body-md": ["Inter", "sans-serif"]
+              "body-md": ["Inter", "sans-serif"],
+              "headline-sm": ["Geist", "sans-serif"],
+              "headline-xs": ["Geist", "sans-serif"],
+              "body-sm": ["Inter", "sans-serif"],
+              "body-xs": ["Inter", "sans-serif"],
+              "label-xs": ["JetBrains Mono", "monospace"]
           },
           "fontSize": {
+              "headline-sm": ["20px", { "lineHeight": "1.3", "fontWeight": "500" }],
+              "headline-xs": ["16px", { "lineHeight": "1.3", "fontWeight": "500" }],
+              "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+              "body-xs": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+              "label-xs": ["10px", { "lineHeight": "1.2", "fontWeight": "500" }],
               "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.03em", "fontWeight": "600" }],
               "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
               "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],

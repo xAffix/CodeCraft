@@ -1,6 +1,7 @@
 const express = require('express');
 const supabase = require('../config/database');
 const { authMiddleware } = require('../middleware/auth');
+const { isDevUser, DEV_USER_ID, DEV_TICKETS } = require('../config/devMock');
 
 const router = express.Router();
 
@@ -10,9 +11,14 @@ router.use(authMiddleware);
 /**
  * GET /api/tickets
  * List tickets for the current user's simulation.
+ * In dev mode, returns seeded sample tickets.
  */
 router.get('/', async (req, res, next) => {
   try {
+    if (isDevUser(req)) {
+      return res.json({ tickets: DEV_TICKETS, devMode: true });
+    }
+
     const { data, error } = await supabase
       .from('tickets')
       .select('*')
@@ -33,6 +39,12 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/:id', async (req, res, next) => {
   try {
+    if (isDevUser(req)) {
+      const ticket = DEV_TICKETS.find(t => t.id === req.params.id);
+      if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+      return res.json({ ticket, devMode: true });
+    }
+
     const { data, error } = await supabase
       .from('tickets')
       .select('*')
@@ -63,6 +75,13 @@ router.patch('/:id', async (req, res, next) => {
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    if (isDevUser(req)) {
+      const ticket = DEV_TICKETS.find(t => t.id === req.params.id);
+      if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+      Object.assign(ticket, updates, { updated_at: new Date().toISOString() });
+      return res.json({ ticket, devMode: true });
     }
 
     const { data, error } = await supabase

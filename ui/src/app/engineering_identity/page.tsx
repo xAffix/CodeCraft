@@ -109,7 +109,7 @@ export default function EngineeringIdentity() {
 <div className="absolute inset-0 bg-gradient-to-br from-tertiary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 <p className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-md">System Trust Score</p>
 <div className="relative w-40 h-40 flex items-center justify-center mb-md">
-<svg className="absolute inset-0 w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
 <circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="2"></circle>
 <circle className="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#abffcb" stroke-dasharray="283" stroke-dashoffset="14" stroke-width="4"></circle>
 </svg>

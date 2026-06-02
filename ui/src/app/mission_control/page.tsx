@@ -140,7 +140,7 @@ export default function MissionControl() {
 <div className="flex-grow flex flex-col justify-center items-center py-sm">
 <div className="relative w-32 h-32 flex items-center justify-center">
 {/*  Simulated SVG Donut Chart  */}
-<svg className="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
 <circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="8"></circle>
 <circle className="text-primary drop-shadow-[0_0_8px_rgba(195,245,255,0.5)]" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-dasharray="283" stroke-dashoffset="15" stroke-width="8"></circle>
 </svg>
