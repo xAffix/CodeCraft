@@ -88,8 +88,10 @@ export default function AccessTerminal() {
     setIsDevLoading(true);
     setError("");
 
-    // Dev bypass — skip Supabase entirely (it hangs in offline/unconfirmed-email state).
-    // Set localStorage and navigate. The dashboard pages accept the dev token via X-Dev-Access header.
+    // Dev bypass — set localStorage and navigate. The dashboard pages accept
+    // the dev token via X-Dev-Access header. Use ?dev=1 query param + hard
+    // reload so the URL-based auto-login useEffect handles navigation
+    // (this avoids any headless-browser / React event-delegation quirks).
     localStorage.setItem('codecraft_dev_session', JSON.stringify({
       email: DEV_EMAIL,
       name: 'Dev Engineer',
@@ -97,7 +99,7 @@ export default function AccessTerminal() {
       expiresAt: Date.now() + 86400000, // 24h
     }));
     localStorage.setItem('codecraft_dev_token', 'codecraft-dev-2024');
-    router.push('/active_simulation');
+    window.location.href = '/active_simulation';
   };
   return (
     <div className="flex w-full min-h-screen">{/*  Left Panel: Immersive Atmosphere (Hidden on Mobile)  */}
