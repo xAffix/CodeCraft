@@ -161,10 +161,10 @@ export default function ActiveSimulation() {
   ];
 
   return (
-    <div className="flex w-full min-h-screen">
+    <div className="flex min-h-screen bg-[#0a0a0a]">
       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/5 blur-[100px] pointer-events-none z-0"></div>
-      
+
       {/* SideNavBar */}
       <nav className="bg-surface/60 backdrop-blur-xl fixed left-0 top-0 h-full w-64 border-r border-white/10 shadow-[0px_0px_40px_rgba(0,218,243,0.1)] flex flex-col py-lg z-50" id="sidebar-nav">
         <div className="px-gutter mb-lg flex flex-col gap-sm">
@@ -196,24 +196,25 @@ export default function ActiveSimulation() {
         </div>
       </nav>
 
-      {/* TopAppBar */}
-      <header className="bg-transparent full-width top-0 flex justify-between items-center w-full px-margin py-base ml-64 z-40 relative">
-        <div className="flex items-center gap-md">
-          <h2 className="font-headline-md text-headline-md text-primary glow-sm tracking-tight font-bold">
-            {inWorkspace ? 'Code Workspace' : activeTab}
-          </h2>
-          {inWorkspace && (
-            <button onClick={() => setInWorkspace(false)} className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-              Back to {activeTab}
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-lg">
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-sm">search</span>
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-surface-container/50 border border-white/10 rounded-full pl-10 pr-4 py-1.5 font-label-sm text-label-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all w-64 placeholder-on-surface-variant/50" placeholder="Search commands, logs, tickets..." type="text"/>
+      {/* Main content area wrapper - properly constrained to sidebar width */}
+      <div className="ml-64 flex-1 min-w-0 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-30 flex justify-between items-center w-full px-6 py-3 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 shrink-0">
+          <div className="flex items-center gap-md min-w-0">
+            <h2 className="font-headline-md text-headline-md text-primary glow-sm tracking-tight font-bold truncate">
+              {inWorkspace ? 'Code Workspace' : activeTab}
+            </h2>
+            {inWorkspace && (
+              <button onClick={() => setInWorkspace(false)} className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 shrink-0">
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                Back to {activeTab}
+              </button>
+            )}
           </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="relative group hidden md:block">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-sm">search</span>
+              <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-surface-container/50 border border-white/10 rounded-full pl-9 pr-3 py-1.5 font-label-sm text-label-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all w-44 placeholder-on-surface-variant/50" placeholder="Search…" type="text"/>
+            </div>
           <div className="flex items-center gap-md text-on-surface-variant">
             <div className="relative">
               <button 
@@ -266,21 +267,19 @@ export default function ActiveSimulation() {
       </header>
 
       {/* Main Canvas */}
-      <main className="ml-64 p-gutter pt-0 pb-xl h-[calc(100vh-4rem)] overflow-hidden flex flex-col gap-base relative z-10 w-full">
+      <main className="flex-1 min-h-0 px-6 pt-4 pb-14 overflow-hidden flex flex-col gap-4 relative">
         {inWorkspace ? (
           <div className="flex-1 min-h-0">
             <CodeWorkspace />
           </div>
         ) : activeTab === "Mission Control" ? (
-          <MissionControl />
+          <div className="flex-1 min-h-0 overflow-y-auto feed-scroll pr-1">
+            <MissionControl />
+          </div>
         ) : activeTab === "Active Simulations" ? (
-          <div className="flex-1 min-h-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">FinTechFast · Sprint #12</p>
-                </div>
-              </div>
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex items-center justify-between mb-3 shrink-0">
+              <p className="font-body-sm text-body-sm text-on-surface-variant">FinTechFast · Sprint #12</p>
               <button
                 onClick={() => setInWorkspace(true)}
                 className="flex items-center gap-2 bg-primary/10 border border-primary/30 text-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-primary hover:text-on-primary transition-all"
@@ -289,7 +288,7 @@ export default function ActiveSimulation() {
                 Open Workspace
               </button>
             </div>
-            <div className="flex-1 min-h-0" style={{ height: 'calc(100% - 60px)' }}>
+            <div className="flex-1 min-h-0">
               <ActiveSimulations showAlert={showAlert} setShowAlert={setShowAlert} logs={logs} metrics={metrics} />
             </div>
           </div>
@@ -321,7 +320,7 @@ export default function ActiveSimulation() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-surface-container-lowest/80 backdrop-blur-md border-t border-white/5 fixed bottom-0 left-64 right-0 z-40 flex justify-between items-center px-gutter py-xs">
+      <footer className="bg-surface-container-lowest/80 backdrop-blur-md border-t border-white/5 shrink-0 flex justify-between items-center px-6 py-2">
         <div className="font-label-sm text-label-sm text-tertiary-fixed-dim">
           System Latency: {Math.max(10, metrics.cpu - 60)}ms | Active Tickets: 6 | Incidents: {activeIncidents.length} | Sprint #12
         </div>
@@ -334,9 +333,10 @@ export default function ActiveSimulation() {
 
       {/* Sim-Slack Chat */}
       <SimChat />
-      
+
       {/* Onboarding */}
       <Onboarding />
+      </div>
     </div>
   );
 }
